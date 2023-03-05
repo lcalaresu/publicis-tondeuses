@@ -8,19 +8,26 @@
  */
 package com.publicisgroupe.lawnmower.commands;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(ReadProgramCommandParameterResolver.class)
+@DisplayName("Testing ReadProgramCommand")
 public class ReadProgramCommandTest {
     @Test
-    void commandShouldBeCallable() {
-        final ReadProgramCommand classUnderTest = new ReadProgramCommand();
+    void commandShouldBeCallable(ReadProgramCommand instance) {
         try {
-            assertNotNull(classUnderTest.call(), "command should be callable");
+            assertNotNull(instance.call(), "command should be callable");
+
+            fail("command should raise an exception with no argument in command line");
+
         } catch (final Exception cause) {
-            fail("command should not raise an exception", cause);
+            // with no argument in command line, this test should fail
         }
     }
 }
