@@ -2,6 +2,8 @@ package com.publicisgroupe.lawnmower.models;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * This record represents a lawnmower to allow solving our problem.
  */
@@ -10,16 +12,23 @@ public class Lawnmower {
     private int x;
     private int y;
     private @NotNull LawnmowerOrientation orientation;
-    private @NotNull LawnmowerInitRecord initRecord;
+    private final @NotNull LawnmowerInitRecord initRecord;
+    private final @NotNull List<Character> instructions;
 
     /**
      * Define a new lawnmower with the given attributes.
      *
-     * @param initRecord the {@link LawnmowerInitRecord} representing the initial position and instructions
-     *                   of the lawmower
+     * @param initRecord   the {@link LawnmowerInitRecord} representing the initial position of the lawmower
+     * @param instructions all the instructions of the lawmower
      */
-    public Lawnmower(final @NotNull LawnmowerInitRecord initRecord) {
+    public Lawnmower(
+            final @NotNull LawnmowerInitRecord initRecord,
+            final @NotNull List<Character> instructions) {
+        // init position and direction, and instructions should never change
         this.initRecord = initRecord;
+        this.instructions = instructions;
+
+        // set the start position and direction
         this.x = initRecord.startX();
         this.y = initRecord.startY();
         this.orientation = initRecord.startOrientation();

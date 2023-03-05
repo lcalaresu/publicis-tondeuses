@@ -13,7 +13,7 @@ public class LawnmowerFileFormatException extends Exception {
     /**
      * Associated error code.
      */
-    private int errcode;
+    private final int errcode;
 
     /**
      * Returns the error code associated to this exception.
