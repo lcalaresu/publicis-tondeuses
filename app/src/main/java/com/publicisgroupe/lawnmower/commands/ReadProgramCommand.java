@@ -25,6 +25,7 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -162,7 +163,8 @@ public class ReadProgramCommand implements Callable<Integer> {
      * @throws LawnmowerFileFormatException if the file format is not valid
      */
     @NotNull
-    private static List<Character> extractMowerInstructions(final @NotNull LineIterator it) throws LawnmowerFileFormatException {
+    private static List<Character> extractMowerInstructions(final @NotNull LineIterator it)
+            throws LawnmowerFileFormatException {
         // extract the instructions as a list of characters
         final String instructionString = it.nextLine();
         // make sur its content is valid
@@ -217,8 +219,11 @@ public class ReadProgramCommand implements Callable<Integer> {
 
         // extract the 3 element (orientation)
         try {
-            orientation = LawnmowerOrientation.valueOf(tokens[2]);
-        } catch (final @NotNull IllegalArgumentException iae) {
+            orientation = LawnmowerOrientation
+                    .valueOfInstruction(tokens[2].charAt(0))
+                    .orElseThrow();
+
+        } catch (final @NotNull IllegalArgumentException | IndexOutOfBoundsException | NoSuchElementException ex) {
             throw new LawnmowerFileFormatException(
                     Constants.Retcode.READCOMMAND_FORMAT_ERROR,
                     I18n.getMessage("readcommand.format.error.firstline.orientation")); //$NON-NLS-1$
