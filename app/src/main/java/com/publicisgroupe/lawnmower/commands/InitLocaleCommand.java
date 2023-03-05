@@ -16,8 +16,9 @@ public class InitLocaleCommand {
      *
      * @param locale the given option value
      */
-    @Option(names = {"-L", "--locale"},
-            description = "locale used for message texts")
+    @Option(names = {"-L", "--locale"}, //$NON-NLS-1$ //$NON-NLS-2$
+            description = "locale used for message texts" //$NON-NLS-1$
+    )
     void setLocale(final @NotNull String locale) {
         I18n.setLocale(locale);
     }

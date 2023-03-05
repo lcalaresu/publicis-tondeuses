@@ -1,5 +1,3 @@
-package com.publicisgroupe.lawnmower.commands;
-
 /**
  * Publicis Lawnmower Project
  * <p>
@@ -21,9 +19,12 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+/**
+ * This class represent the command to read the Lawnmower Program.
+ */
 @Command(
-        name = "lawnmower",
-        version = "lawnmower 1.0",
+        name = "lawnmower", //$NON-NLS-1$
+        version = "lawnmower 1.0", //$NON-NLS-1$
         mixinStandardHelpOptions = true,
         resourceBundle = I18n.MESSAGES_KEY,
         sortOptions = false
@@ -33,27 +34,30 @@ public class ReadProgramCommand implements Callable<Integer> {
     /**
      * the <code>--locale</code> option (to be ignored here, in the second phase of parsing).
      */
-    @Option(names = {"-L", "--locale"},
-            descriptionKey = "command.options.locale",
-            paramLabel = "LOCALE")
+    @Option(names = {"-L", "--locale"}, //$NON-NLS-1$ //$NON-NLS-2$
+            descriptionKey = "command.options.locale", //$NON-NLS-1$
+            paramLabel = "LOCALE" //$NON-NLS-1$
+    )
     private String ignored;
 
     /**
      * The <code>--file</code> option to choose the file to read.
      */
-    @Option(names = {"-F", "--file"},
+    @Option(names = {"-F", "--file"}, //$NON-NLS-1$  //$NON-NLS-2$
             required = true,
-            paramLabel = "PROGRAM",
-            descriptionKey = "command.options.file")
+            paramLabel = "PROGRAM", //$NON-NLS-1$
+            descriptionKey = "command.options.file" //$NON-NLS-1$
+    )
     @NotNull
     private File lpfFile;
 
     /**
      * The <code>--help</code> option to display the usage message.
      */
-    @Option(names = {"-H", "--help"},
+    @Option(names = {"-H", "--help"}, //$NON-NLS-1$ //$NON-NLS-2$
             usageHelp = true,
-            descriptionKey = "command.options.help")
+            descriptionKey = "command.options.help" //$NON-NLS-1$
+    )
     private boolean helpRequested = false;
 
     /**

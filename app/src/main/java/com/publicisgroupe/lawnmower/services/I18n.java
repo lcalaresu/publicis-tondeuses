@@ -45,7 +45,7 @@ public class I18n {
      *
      * @return the current locale
      */
-    public static final @NotNull Locale getLocale() {
+    public static @NotNull Locale getLocale() {
         return Locale.getDefault();
     }
 
