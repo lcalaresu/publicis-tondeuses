@@ -11,7 +11,7 @@ package com.publicisgroupe.lawnmower.commands;
 
 import com.publicisgroupe.lawnmower.Constants;
 import com.publicisgroupe.lawnmower.exceptions.LawnmowerFileFormatException;
-import com.publicisgroupe.lawnmower.models.LawnCoordinate;
+import com.publicisgroupe.lawnmower.models.Lawn;
 import com.publicisgroupe.lawnmower.models.Lawnmower;
 import com.publicisgroupe.lawnmower.models.LawnmowerInitRecord;
 import com.publicisgroupe.lawnmower.models.LawnmowerOrientation;
@@ -23,7 +23,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
@@ -83,10 +82,13 @@ public class ReadProgramCommand implements Callable<Integer> {
         isFileValid();
 
         // starting here, we have a nice file
+        Lawn lawn;
         try (final @NotNull LineIterator it = FileUtils.lineIterator(lpfFile, Constants.CHARSET_UTF8)) {
             // iterate on each line of the file
-            iterateOnFileLines(it);
+            lawn = iterateOnFileLines(it);
         }
+
+        lawn.moveAllMowers();
 
         // errcode OK = 0 (the other retcodes are contained in the exception)
         return Constants.Retcode.OK;
@@ -96,16 +98,15 @@ public class ReadProgramCommand implements Callable<Integer> {
      * Iterate on all the lines of the given file (using its iterator)
      *
      * @param it current iterator
+     * @return
      * @throws LawnmowerFileFormatException in one of those cases :
      *                                      <ul>
      *                                          <li>the file is empty</li>
      *                                          <li>the file format is not valid</li>
      *                                      </ul>
      */
-    private void iterateOnFileLines(final @NotNull LineIterator it)
+    private @NotNull Lawn iterateOnFileLines(final @NotNull LineIterator it)
             throws LawnmowerFileFormatException {
-        // list of all mowers
-        final @NotNull List<Lawnmower> mowers = new ArrayList<>();
 
         // if the file does not have AT LEAST 1 line, we cannot continue
         if (!it.hasNext()) {
@@ -115,14 +116,22 @@ public class ReadProgramCommand implements Callable<Integer> {
         }
 
         // extract the first line of the file
-        final @NotNull LawnCoordinate topRight = extractFirstLine(it);
+        final @NotNull Lawn lawn = extractFirstLine(it);
 
         // iterate on each lawnmower (1 lawnmower = 2 lines)
         while (it.hasNext()) {
-            mowers.add(
-                    extractNextMower(it)
-            );
+            final Lawnmower nextMower = extractNextMower(it);
+            if (lawn.contains(nextMower)) {
+                // add the mower to the lawn only if it is not out of bounds
+                lawn.mowers().add(nextMower);
+            } else {
+                // if out of bounds, we display a message but continue (without the lawnmower)
+                System.err.println(
+                        I18n.getMessage("readcommand.mower.out.of.bounds", lawn.mowers().size()) //$NON-NLS-1$
+                );
+            }
         }
+        return lawn;
     }
 
     /**
@@ -237,10 +246,10 @@ public class ReadProgramCommand implements Callable<Integer> {
      * Extract the first line of the file.
      *
      * @param it current file iterator
-     * @return the {@link LawnCoordinate} of the top right lawn point
+     * @return the {@link Lawn} of the top right lawn point
      * @throws LawnmowerFileFormatException if the file format is not valid
      */
-    private static @NotNull LawnCoordinate extractFirstLine(final @NotNull LineIterator it)
+    private static @NotNull Lawn extractFirstLine(final @NotNull LineIterator it)
             throws LawnmowerFileFormatException {
 
         // get the first line, and split its tokens
@@ -270,7 +279,7 @@ public class ReadProgramCommand implements Callable<Integer> {
         }
 
         // return the init record
-        return new LawnCoordinate(x, y);
+        return new Lawn(x, y);
     }
 
     /**
@@ -286,10 +295,11 @@ public class ReadProgramCommand implements Callable<Integer> {
     private void isFileValid() throws LawnmowerFileFormatException {
         final @NotNull String filename = lpfFile.getName();
 
+
         if (!lpfFile.exists()) {
             throw new LawnmowerFileFormatException(
                     Constants.Retcode.READCOMMAND_MISSING_ILE,
-                    I18n.getMessage("readcommand.file.missing", filename)); //$NON-NLS-1$
+                    I18n.getMessage("readcommand.file.missing", lpfFile.getAbsolutePath())); //$NON-NLS-1$
 
         } else if (!lpfFile.isFile()) {
             throw new LawnmowerFileFormatException(
