@@ -34,10 +34,7 @@ dependencies {
     implementation 'info.picocli:picocli:4.7.1'
     annotationProcessor 'info.picocli:picocli-codegen:4.7.1'
 
-    // Apache Commons IO to read files easily, even huge files (without using all the memory)
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-
-    // intellij annotation (for NotNull / Nullable annotation)
     implementation group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
 }
 
@@ -53,4 +50,12 @@ compileJava {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
 }

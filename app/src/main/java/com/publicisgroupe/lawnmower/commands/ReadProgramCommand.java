@@ -1,3 +1,5 @@
+package com.publicisgroupe.lawnmower.commands;
+
 /**
  * Publicis Lawnmower Project
  * <p>
@@ -9,6 +11,9 @@
  */
 package com.publicisgroupe.lawnmower.commands;
 
+import com.publicisgroupe.lawnmower.services.I18n;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -18,29 +23,73 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "lawnmower",
-        description = "The Lawnmower application allows you to read a 'lawnmower programming file (*.lpf)' " +
-                "in order to program your lawnmowers."
+        version = "lawnmower 1.0",
+        mixinStandardHelpOptions = true,
+        resourceBundle = I18n.MESSAGES_KEY,
+        sortOptions = false
 )
 public class ReadProgramCommand implements Callable<Integer> {
 
+    /**
+     * the <code>--locale</code> option (to be ignored here, in the second phase of parsing).
+     */
+    @Option(names = {"-L", "--locale"},
+            descriptionKey = "command.options.locale",
+            paramLabel = "LOCALE")
+    private String ignored;
+
+    /**
+     * The <code>--file</code> option to choose the file to read.
+     */
     @Option(names = {"-F", "--file"},
             required = true,
             paramLabel = "PROGRAM",
-            description = "The LPF file that contains the lawnmower program.")
+            descriptionKey = "command.options.file")
     @NotNull
     private File lpfFile;
 
+    /**
+     * The <code>--help</code> option to display the usage message.
+     */
     @Option(names = {"-H", "--help"},
             usageHelp = true,
-            description = "Display a help message")
+            descriptionKey = "command.options.help")
     private boolean helpRequested = false;
 
     /**
-     * @return
-     * @throws Exception
+     * The entry point of our command.
+     *
+     * @return <code>0</code> if everything went well, the <code>errorcode</code> otherwise.
+     * @throws Exception           if any exception occured on runtime
+     * @throws java.io.IOException if an I/O error occurs.
      */
     @Override
-    public Integer call() throws Exception {
+    public @NotNull Integer call() throws Exception {
+        if (!lpfFile.exists() || !lpfFile.isFile() || !lpfFile.canRead()) {
+            return 128; // errcode File not found
+        }
+
+        try (final @NotNull LineIterator it = FileUtils.lineIterator(lpfFile, "UTF-8")) {
+
+            //
+            if (it.hasNext()) {
+                final @NotNull String firstLine = it.nextLine();
+            } else {
+                // format error : no "first line"
+            }
+
+            // iterate on each lawnmowers
+            while (it.hasNext()) {
+                final @NotNull String initPosition = it.nextLine();
+                if (it.hasNext()) {
+                    final @NotNull String instructions = it.nextLine();
+                } else {
+                    // error: lawnmower definer with init position, but no instructions
+                }
+            }
+        }
         return 0;
     }
 }
+
+
