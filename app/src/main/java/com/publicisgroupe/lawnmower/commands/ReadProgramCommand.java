@@ -11,7 +11,7 @@ package com.publicisgroupe.lawnmower.commands;
 
 import com.publicisgroupe.lawnmower.Constants;
 import com.publicisgroupe.lawnmower.exceptions.LawnmowerFileFormatException;
-import com.publicisgroupe.lawnmower.models.LawnCoordinate;
+import com.publicisgroupe.lawnmower.models.Lawn;
 import com.publicisgroupe.lawnmower.models.Lawnmower;
 import com.publicisgroupe.lawnmower.models.LawnmowerInitRecord;
 import com.publicisgroupe.lawnmower.models.LawnmowerOrientation;
@@ -104,8 +104,6 @@ public class ReadProgramCommand implements Callable<Integer> {
      */
     private void iterateOnFileLines(final @NotNull LineIterator it)
             throws LawnmowerFileFormatException {
-        // list of all mowers
-        final @NotNull List<Lawnmower> mowers = new ArrayList<>();
 
         // if the file does not have AT LEAST 1 line, we cannot continue
         if (!it.hasNext()) {
@@ -115,11 +113,11 @@ public class ReadProgramCommand implements Callable<Integer> {
         }
 
         // extract the first line of the file
-        final @NotNull LawnCoordinate topRight = extractFirstLine(it);
+        final @NotNull Lawn lawn = extractFirstLine(it);
 
         // iterate on each lawnmower (1 lawnmower = 2 lines)
         while (it.hasNext()) {
-            mowers.add(
+            lawn.mowers().add(
                     extractNextMower(it)
             );
         }
@@ -237,10 +235,10 @@ public class ReadProgramCommand implements Callable<Integer> {
      * Extract the first line of the file.
      *
      * @param it current file iterator
-     * @return the {@link LawnCoordinate} of the top right lawn point
+     * @return the {@link Lawn} of the top right lawn point
      * @throws LawnmowerFileFormatException if the file format is not valid
      */
-    private static @NotNull LawnCoordinate extractFirstLine(final @NotNull LineIterator it)
+    private static @NotNull Lawn extractFirstLine(final @NotNull LineIterator it)
             throws LawnmowerFileFormatException {
 
         // get the first line, and split its tokens
@@ -270,7 +268,7 @@ public class ReadProgramCommand implements Callable<Integer> {
         }
 
         // return the init record
-        return new LawnCoordinate(x, y);
+        return new Lawn(x, y);
     }
 
     /**
